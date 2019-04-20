@@ -4,14 +4,9 @@ const cmd = readline.createInterface(process.stdin, process.stdout);
 clients = new Array();
 const wss = new WebSocket.Server({ port: 9000 });
 
-cmd.setPrompt('Cloud Console> ');
-cmd.prompt();
-
-wss.on('connection', function connection(res, req) {
-    clients[req.url.split("/")[1]]=res;
-    res.on('message', function incoming(message) {
-        console.log('received: %s', message);
-    });
+wss.on('listening', function listening(res, req) {
+    cmd.setPrompt('Cloud Console> ');
+    cmd.prompt();
     cmd.on('line', function(line) {
         line = line.trim();
         switch(line.split(" ")[0]){
@@ -49,4 +44,12 @@ wss.on('connection', function connection(res, req) {
         console.log('Terminated!');
         process.exit(0);
     });
+});
+
+wss.on('connection', function connection(res, req) {
+    clients[req.url.split("/")[1]]=res;
+    res.on('message', function incoming(message) {
+        console.log('received: %s', message);
+    });
+    
 });
